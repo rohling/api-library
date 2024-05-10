@@ -117,20 +117,7 @@ export async function saveSubject(req: Request, res: Response) {
     client.release();
   }
 }
-export const getSubjectById = async (req: Request, res: Response) => {
-  const client = await pool.connect();
-  try {
-    const id = Number(req.params.id);
-    const course = await client.query(
-      `SELECT * FROM subjects WHERE id = ${id}`,
-    );
-    return res.status(200).json(course.rows[0]);
-  } catch (error) {
-    console.error("Erro durante a Busca:", error);
-  } finally {
-    client.release();
-  }
-};
+
 export async function saveProfessor(req: Request, rs: Response) {
   const client = await pool.connect();
   const professor = req.body;
