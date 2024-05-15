@@ -2,6 +2,21 @@
 import { pool } from "../lib/bdpg";
 //tirar pasta route, próxima versao
 import { Request, Response, Router } from "express";
+import { z } from "zod";
+const Author = z.object({
+  id: z.number().optional(),
+  name: z.string(),
+});
+
+// extract the inferred type like this
+type Author = z.infer<typeof Author>;
+
+const Monography = z.object({
+  title: z.string(),
+  author: Author,
+});
+
+type Monography = z.infer<typeof Monography>;
 
 export async function allAuthors(req: Request, res: Response) {
   const client = await pool.connect();
@@ -18,19 +33,19 @@ export async function allAuthors(req: Request, res: Response) {
 export async function saveAuthor(req: Request, res: Response) {
   const client = await pool.connect();
   try {
-    const author = req.body;
-    console.log(
-      `insert INTO authors (name) VALUES ('${author.name}) RETURNING *`,
-    );
+    const author = Author.parse(req.body);
+
+    console.log(author.name);
+    console.log(typeof author.name);
     const courseSave = await client.query(
       `insert INTO authors (name) VALUES ('${author.name}') RETURNING *`,
     );
     console.log(courseSave.rows[0]);
     res.status(201).json(courseSave.rows[0]);
-    //res.send("Curso Salvo");
   } catch (error) {
     console.error("Erro durante a Busca:", error);
-    return res.status(500).json({ error });
+    return res.status(400).json({ error });
+    //res.status(400).json({ message: 'Dados inválidos', error: error.errors });
   } finally {
     client.release();
   }
@@ -69,7 +84,7 @@ export async function allMonographs(req: Request, res: Response) {
 export async function saveMonography(req: Request, res: Response) {
   const client = await pool.connect();
   try {
-    const monography = req.body;
+    const monography = Monography.parse(req.body);
     console.log(monography);
     const save = await client.query(
       `insert INTO monographs (title, author_id) VALUES ('${monography.title}', '${monography.author.id}' ) RETURNING *`,
@@ -79,7 +94,7 @@ export async function saveMonography(req: Request, res: Response) {
     //res.send("Estudante Salvo");
   } catch (error) {
     console.error("Erro durante a Busca:", error);
-    return res.status(500).json({ error });
+    return res.status(400).json({ error });
   } finally {
     client.release();
   }
