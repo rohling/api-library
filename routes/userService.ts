@@ -10,6 +10,7 @@ export async function allAuthors(req: Request, res: Response) {
     res.send(courses.rows);
   } catch (error) {
     console.error("Erro durante a Busca:", error);
+    return res.status(500).json({ error });
   } finally {
     client.release();
   }
@@ -29,6 +30,7 @@ export async function saveAuthor(req: Request, res: Response) {
     //res.send("Curso Salvo");
   } catch (error) {
     console.error("Erro durante a Busca:", error);
+    return res.status(500).json({ error });
   } finally {
     client.release();
   }
@@ -38,9 +40,13 @@ export const getAuthorById = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
     const course = await client.query(`SELECT * FROM authors WHERE id = ${id}`);
+    if (course.rowCount === 0) {
+      return res.status(404).json({ message: "Author não encontrado" });
+    }
     return res.status(200).json(course.rows[0]);
   } catch (error) {
     console.error("Erro durante a Busca:", error);
+    return res.status(500).json({ error });
   } finally {
     client.release();
   }
@@ -55,6 +61,7 @@ export async function allMonographs(req: Request, res: Response) {
     res.send(monographs.rows);
   } catch (error) {
     console.log("Erro  na Busca:" + error);
+    return res.status(500).json({ error });
   } finally {
     client.release();
   }
@@ -72,6 +79,7 @@ export async function saveMonography(req: Request, res: Response) {
     //res.send("Estudante Salvo");
   } catch (error) {
     console.error("Erro durante a Busca:", error);
+    return res.status(500).json({ error });
   } finally {
     client.release();
   }
@@ -83,9 +91,13 @@ export const getMonographyById = async (req: Request, res: Response) => {
     const course = await client.query(
       `SELECT * FROM monographs WHERE id = ${id}`,
     );
+    if (course.rowCount === 0) {
+      return res.status(404).json({ message: "Monografia não encontrada" });
+    }
     return res.status(200).json(course.rows[0]);
   } catch (error) {
     console.error("Erro durante a Busca:", error);
+    return res.status(500).json({ error });
   } finally {
     client.release();
   }
@@ -98,6 +110,7 @@ export async function listSubject(req: Request, res: Response) {
     res.send(subjects.rows);
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ error });
   } finally {
     client.release();
   }
@@ -113,12 +126,13 @@ export async function saveSubject(req: Request, res: Response) {
     res.send("Curso Salvo");
   } catch (error) {
     console.error("Erro durante a Busca:", error);
+    return res.status(500).json({ error });
   } finally {
     client.release();
   }
 }
 
-export async function saveProfessor(req: Request, rs: Response) {
+export async function saveProfessor(req: Request, res: Response) {
   const client = await pool.connect();
   const professor = req.body;
   console.log(professor);
@@ -134,6 +148,7 @@ export async function saveProfessor(req: Request, rs: Response) {
     await client.query("COMMIT");
   } catch (error) {
     console.error("Erro durante a Busca:", error);
+    return res.status(500).json({ error });
   } finally {
     client.release();
   }
@@ -155,53 +170,8 @@ export async function saveRegistry(req: Request, res: Response) {
   } catch (error) {
     await client.query("ROLLBACK");
     console.error("Erro durante a transação:", error);
+    return res.status(500).json({ error });
   } finally {
     client.release();
   }
 }
-
-// // Start a transaction
-// // const client = await pool.connect();
-// // await client.query('BEGIN');
-// try {
-//   const my = await sql.begin(insertRegistry);
-// } catch (error) {
-//   console.log(error);
-// }
-
-// async function insertRegistry() {
-//   try {
-//     // const student_id = [student.id];
-//     console.log(req.body);
-//     console.log(req.body.student);
-//     console.log(req.body.subjects);
-
-//     for (const subject of registry.subjects) {
-//       const subject_id = [subject.id];
-//       console.log(subject_id);
-//       await sql` INSERT INTO registries (student_id, subject_id) VALUES (${registry.student.id}, ${subject_id})`;
-//     }
-//     sql.CLOSE;
-//     // Commit the transaction
-//     //  await client.query('COMMIT');
-//     res.status(201).json({ message: "Order created successfully" });
-//   } catch (error) {
-//     // Rollback the transaction on error
-//     //await client.query('ROLLBACK');
-//     //     await sql.CLOSE
-//     throw error;
-//   } finally {
-//     // Release the client back to the pool
-//     // client.release();
-//   }
-// }
-// // } catch (error) {
-// //   console.error('Error creating order:', error);
-// //   res.status(500).json({ error: 'Internal server error' });
-// // }
-
-// // const registry = req.body;
-// // console.log(registry.student.id +  registry.subjects);
-// // const save =
-// // await sql`insert INTO registries (student_id, subject_id) VALUES (${registry.student.id},${registry.subjects[0].id})`;
-// // res.send("Matrícula Realizada");

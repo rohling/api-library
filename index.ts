@@ -19,13 +19,15 @@ const port = 3000;
 //app.use(express.static("public"));
 app.use(router);
 
-app.use("/", express.static("public"));
-router.get("/first", (req, res) => {
-  //  res.sendFile(path.join(__dirname + "/public/index.html"));
-  //  res.send("Hello World2");
-});
+//app.use("/", express.static("public"));
+//router.get("/first", (req, res) => {
+//  res.sendFile(path.join(__dirname + "/public/index.html"));
+//  res.send("Hello World2");
+//});
 
-//app.use("/users", usersRouter);
+router.get("/", (req, res) => {
+  res.send("SI");
+});
 router.get("/authors", allAuthors);
 router.get("/authors/:id", getAuthorById);
 router.post("/authors", saveAuthor);
