@@ -5,7 +5,7 @@ import { Request, Response, Router } from "express";
 import { z } from "zod";
 const Author = z.object({
   id: z.number().optional(),
-  name: z.string(),
+  name: z.string().optional(),
 });
 
 // extract the inferred type like this
